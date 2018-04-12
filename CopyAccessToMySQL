@@ -1,0 +1,38 @@
+Sub copystructure()
+'This uses TransferDatabase Method which is included WITH MSAccess and copies database structure to mySQL database
+'It requires a DSN
+'To create one:
+'Locate the folder "Administrative Tools" and click the icon "Data Sources(ODBC)" to launch the ODBC Data Source Administrator. 
+'The location of this folder varies depending on the version of Microsoft Windows; this is usually located in the Control Panel. 
+'Click on the System DSN tab, and then Click Add.
+
+
+On Error Resume Next
+
+Dim DB
+Dim table
+Dim mySQLUserID as string
+Dim mySQLUserPassword as string
+Dim myDSN as string
+
+
+
+Set DB = CurrentDb
+Err.Number = 0
+'GoTo 0
+For Each tabledef In CurrentDb.TableDefs
+    If UCase(Left(tabledef.Name, 4)) <> "MSYS" And Left(tabledef.Name, 1) <> "~" Then
+    DoCmd.TransferDatabase 1, "ODBC Database", "ODBC;DSN=" & myDSN & ";UID=" & mySQLUserID & ";PWD=" & MySQLUserPassword & ";LANGUAGE=us_english", 0, tabledef.Name, tabledef.Name, True, False
+        If Err.Number = "0" Then
+            MsgBox "Success " & tabledef.Name
+        Else
+            If Err.Number = 3146 Then
+                MsgBox "Cannot Copy " & tabledef.Name & " as this table already exists in the MySQL data base"
+                Err.Number = 0
+            End If
+        End If
+    End If
+Next
+0:
+
+End Sub
